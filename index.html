@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="ru">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Добавки · Приёмка товара</title>
+<style>
+:root{font:16px system-ui,sans-serif;color:#17291f;background:#f4f6ef;--green:#235b3e;--line:#dce4d7}*{box-sizing:border-box}body{margin:0}header{background:#173a29;color:#ecf5e9;padding:20px max(22px,calc((100% - 1060px)/2));font-weight:700}main{max-width:1104px;margin:auto;padding:38px 22px 64px}h1{font-size:clamp(35px,6vw,56px);letter-spacing:-.055em;margin:0 0 6px}h2{font-size:20px;margin:0 0 16px}p{margin:0;color:#516458}.intro{margin-bottom:28px}.grid{display:grid;grid-template-columns:1fr 1.5fr;gap:16px;margin-bottom:18px}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}label{display:block;font-weight:650;font-size:14px;margin-bottom:6px}input,textarea,button{font:inherit}.model-picker{position:relative}.suggestions{position:absolute;z-index:3;inset-inline:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:#fff;border:1px solid #cbd8cb;border-radius:10px;box-shadow:0 10px 24px #173a2924;max-height:265px;overflow:auto}.suggestions button{width:100%;display:block;text-align:left;background:transparent;color:#17291f;font-size:14px;padding:8px 10px}.suggestions button:hover,.suggestions [aria-selected="true"] button{background:#eaf1e7}.suggestions small{display:block;font:12px ui-monospace,monospace;color:#516458;margin-top:3px}input,textarea{padding:10px 12px;border:1px solid #cbd8cb;border-radius:9px;width:100%;color:inherit;background:#fbfcfa}textarea{resize:vertical;min-height:80px;font-family:ui-monospace,monospace}.field{margin-bottom:14px}.hint{font-size:13px;margin-top:7px;overflow-wrap:anywhere}button{cursor:pointer;border:0;border-radius:9px;background:var(--green);color:white;padding:10px 15px;font-weight:650}button:disabled{opacity:.48;cursor:default}button.secondary{background:#eaf1e7;color:#254932}button.remove{background:transparent;color:#833a35;padding:4px 8px;font-size:19px}.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}.bar h2{margin:0}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}.supplier-start td{border-top:3px solid #a9c3ad}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line)}th{font-size:13px;color:#516458;background:#f3f7f0}td:nth-child(3){font-family:ui-monospace,monospace}.empty{padding:22px 10px;text-align:center;color:#516458}.status{margin-top:10px;font-size:14px;color:#833a35}.status:empty{display:none}details{margin-top:18px}summary{cursor:pointer;color:var(--green);font-weight:650}details form{margin-top:14px}input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #3a8158;outline-offset:2px}@media(max-width:680px){.grid{grid-template-columns:1fr}main{padding-top:26px}.card{padding:16px}}
+.imei-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}.imei-head label{margin:0}.imei-count{background:#eaf1e7;color:#254932;border-radius:20px;padding:4px 9px;font-size:12px;font-weight:700;white-space:nowrap}.scan-model{display:block;font-size:14px;color:#235b3e;margin-bottom:8px}.scan-model[hidden]{display:none}.date-band th{background:#eaf1e7;color:#173a29}.actions{display:flex;flex-wrap:wrap;gap:8px}.stock-card{margin-top:18px}.stock-card textarea{min-height:118px}.stock-plan{list-style:none;padding:0;margin:12px 0 0}.stock-plan li{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:7px 0;font-size:14px}
+.imei-flag{display:flex;align-items:center;gap:8px;width:fit-content;margin:10px 0 0;cursor:pointer}.imei-flag input{width:16px;height:16px;margin:0;accent-color:var(--green)}
+.cell-edit{display:block;min-width:0;padding:6px 7px;border:1px solid transparent;border-radius:6px;background:transparent}.cell-edit:hover{border-color:#cbd8cb}.cell-edit:focus{border-color:#3a8158;background:#fbfcfa;outline-offset:0}.model-edit{width:100%;min-width:280px}.imei-edit{width:18ch}.supplier-edit{width:100%;min-width:110px}.supplier-cell{display:flex;align-items:center;gap:5px}.supplier-count{font-size:12px;color:#235b3e;background:#eaf1e7;padding:3px 7px;border-radius:20px;white-space:nowrap}
+</style>
+<header>Приёмка товара</header>
+<main>
+<div class="intro"><h1>Новая добавка</h1><p>Введите поставщика, модель и IMEI, чтобы собрать файл Excel.</p></div>
+<div class="grid">
+<section class="card">
+<h2>Поставка</h2>
+<div class="field"><label for="supplier">Поставщик</label><input id="supplier" placeholder="Например, Антон" maxlength="150" list="suppliers"><datalist id="suppliers"></datalist><p class="hint">Укажите поставщика перед добавлением его товаров.</p></div>
+<label for="date">Дата</label><input type="date" id="date" required>
+</section>
+<section class="card">
+<h2>Добавить товар</h2>
+<form id="add">
+<div class="field"><label for="model">Код или полное название модели</label>
+<div class="model-picker" id="modelPicker"><input id="model" placeholder="14p2561" autocomplete="off" maxlength="200" required role="combobox" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false"><ul class="suggestions" id="suggestions" role="listbox" aria-label="Подходящие модели" hidden></ul></div>
+<p id="resolved" class="hint" aria-live="polite">Например, 14p256f или 14з256а → iPhone 14 Pro 256 Gb Фиолетовый</p></div>
+<div class="field"><div class="imei-head"><label for="imei">IMEI</label><output class="imei-count" id="imeiCount" for="imei">0 IMEI</output></div><strong class="scan-model" id="scanModel" hidden></strong><textarea id="imei" placeholder="Вставьте один или несколько IMEI" aria-describedby="scanModel imeiCount" required></textarea><p class="hint">Можно вставить столбец из Excel. Каждый IMEI содержит 15 цифр.</p><label class="imei-flag"><input id="imeiError" type="checkbox">Пометить как ошибку</label></div>
+<button type="submit">Добавить в таблицу</button>
+<p class="status" id="addStatus" role="status"></p>
+</form>
+</section>
+</div>
+<section class="card">
+<div class="bar"><div><h2>Товары</h2><p id="count" class="hint">0 шт.</p></div><div class="actions"><button class="secondary" id="stockBuild" disabled>Складская добавка</button><button id="export" disabled>Скачать Excel</button></div></div>
+<div class="scroll"><table><thead><tr><th>Название модели</th><th>Категория</th><th>IMEI</th><th>Кол-во</th><th>Поставщик</th><th aria-label="Действия"></th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="status" id="tableStatus" role="status"></p>
+<p class="status" id="exportStatus" role="status"></p>
+</section>
+<section class="card stock-card" id="stockCard">
+<h2>Складская добавка</h2>
+<label for="stockText">Текст добавки</label>
+<textarea id="stockText" placeholder="11 Pro 256 - 2🖤 2💛 2💚 2🤍"></textarea>
+<div class="actions"><button class="secondary" id="stockCopy" type="button">Скопировать текст</button><button id="stockImport" type="button">Импортировать текст</button></div>
+<p class="hint" id="stockStatus" role="status"></p>
+<ul class="stock-plan" id="stockPlan"></ul>
+</section>
+<details class="card">
+<summary>Добавить или изменить короткий код</summary>
+<p class="hint">Код можно набрать в любой раскладке. Цвета: w — белый, b — синий или чёрный, gol — голубой, g — золотой или десерт, y — жёлтый, gr — зелёный, k — коралловый, r — красный, o — оранжевый, p — розовый, t — титан, f — фиолетовый. Для iPhone 15 128 Gb Голубой используйте 15128b. Суффиксы модели: p — Pro, pm — Pro Max, pl — Plus, m — mini. Для 1024 Gb и 2 Tb используйте 1t и 2t.</p>
+<form id="catalog">
+<div class="field"><label for="alias">Короткий код</label><input id="alias" placeholder="Например, 11r" maxlength="40" required></div>
+<div class="field"><label for="title">Полное название модели</label><input id="title" placeholder="iPhone 11 256 Gb Красный" maxlength="200" required></div>
+<button class="secondary" type="submit">Сохранить код</button>
+<p class="hint" id="catalogStatus" role="status">Коды сохраняются в этом браузере.</p>
+</form>
+</details>
+</main>
+<script>
+const byId = id => document.getElementById(id);
+const catalogKey = 'iphone-intake-codes-v1';
+let savedCodes = {};
+try { savedCodes = JSON.parse(localStorage.getItem(catalogKey)) || {}; } catch {}
+const codes = new Map(Object.entries({'14p2561':'iPhone 14 Pro 256 Gb Фиолетовый', ...savedCodes}));
+// Model code, category suffix, available capacities, and Russian color names.
+const models = [
+  ['x', 'X', '64 256', 'Белый|Чёрный'],
+  ['xr', 'XR', '64 128 256', 'Чёрный|Белый|Синий|Жёлтый|Коралловый|Красный'],
+  ['xs', 'XS', '64 256 512', 'Белый|Чёрный|Золотой'],
+  ['xsm', 'XS Max', '64 256 512', 'Белый|Чёрный|Золотой'],
+  ['11', '11', '64 128 256', 'Чёрный|Белый|Зелёный|Жёлтый|Фиолетовый|Красный'],
+  ['11p', '11 Pro', '64 256 512', 'Белый|Чёрный|Золотой|Зелёный'],
+  ['11pm', '11 Pro Max', '64 256 512', 'Белый|Чёрный|Золотой|Зелёный'],
+  ['se2', 'SE (2-го поколения)', '64 128 256', 'Чёрный|Белый|Красный'],
+  ['12m', '12 mini', '64 128 256', 'Чёрный|Белый|Красный|Зелёный|Синий|Фиолетовый'],
+  ['12', '12', '64 128 256', 'Чёрный|Белый|Красный|Зелёный|Синий|Фиолетовый'],
+  ['12p', '12 Pro', '128 256 512', 'Белый|Чёрный|Золотой|Синий'],
+  ['12pm', '12 Pro Max', '128 256 512', 'Белый|Чёрный|Золотой|Синий'],
+  ['13m', '13 mini', '128 256 512', 'Красный|Белый|Чёрный|Синий|Розовый|Зелёный'],
+  ['13', '13', '128 256 512', 'Красный|Белый|Чёрный|Синий|Розовый|Зелёный'],
+  ['13p', '13 Pro', '128 256 512 1t', 'Чёрный|Золотой|Белый|Голубой|Зелёный'],
+  ['13pm', '13 Pro Max', '128 256 512 1t', 'Чёрный|Золотой|Белый|Голубой|Зелёный'],
+  ['se3', 'SE (3-го поколения)', '64 128 256', 'Красный|Белый|Чёрный'],
+  ['14', '14', '128 256 512', 'Чёрный|Белый|Красный|Синий|Фиолетовый|Жёлтый'],
+  ['14pl', '14 Plus', '128 256 512', 'Чёрный|Белый|Красный|Синий|Фиолетовый|Жёлтый'],
+  ['14p', '14 Pro', '128 256 512 1t', 'Белый|Золотой|Чёрный|Фиолетовый'],
+  ['14pm', '14 Pro Max', '128 256 512 1t', 'Белый|Золотой|Чёрный|Фиолетовый'],
+  ['15', '15', '128 256 512', 'Чёрный|Голубой|Зелёный|Жёлтый|Розовый'],
+  ['15pl', '15 Plus', '128 256 512', 'Чёрный|Голубой|Зелёный|Жёлтый|Розовый'],
+  ['15p', '15 Pro', '128 256 512 1t', 'Чёрный|Белый|Синий|Титан'],
+  ['15pm', '15 Pro Max', '256 512 1t', 'Чёрный|Белый|Синий|Титан'],
+  ['16', '16', '128 256 512', 'Чёрный|Белый|Розовый|Зелёный|Синий'],
+  ['16pl', '16 Plus', '128 256 512', 'Чёрный|Белый|Розовый|Зелёный|Синий'],
+  ['16p', '16 Pro', '128 256 512 1t', 'Чёрный|Белый|Титан|Десерт'],
+  ['16pm', '16 Pro Max', '256 512 1t', 'Чёрный|Белый|Титан|Десерт'],
+  ['16e', '16e', '128 256 512', 'Чёрный|Белый'],
+  ['17', '17', '256 512', 'Чёрный|Белый|Голубой|Зелёный|Фиолетовый'],
+  ['air', 'Air', '256 512 1t', 'Чёрный|Белый|Золотой|Голубой'],
+  ['17p', '17 Pro', '256 512 1t', 'Белый|Оранжевый|Синий'],
+  ['17pm', '17 Pro Max', '256 512 1t 2t', 'Белый|Оранжевый|Синий'],
+  ['17e', '17e', '256 512', 'Чёрный|Белый|Розовый']
+];
+
+const colorCodes = new Map([
+  ['Белый', 'w'], ['Чёрный', 'b'], ['Синий', 'b'], ['Голубой', 'gol'],
+  ['Жёлтый', 'y'], ['Коралловый', 'k'], ['Красный', 'r'], ['Зелёный', 'gr'],
+  ['Золотой', 'g'], ['Фиолетовый', 'f'], ['Розовый', 'p'], ['Титан', 't'],
+  ['Десерт', 'g'], ['Оранжевый', 'o']
+]);
+const variantsByCode = new Map();
+for (const [modelCode, name, capacities, palette] of models) {
+  for (const capacity of capacities.split(' ')) {
+    const size = capacity === '1t' ? '1024 Gb' : capacity === '2t' ? '2 Tb' : capacity + ' Gb';
+    for (const color of palette.split('|')) {
+      const colorCode = modelCode === '15' && capacity === '128' && color === 'Голубой' ? 'b' : colorCodes.get(color);
+      const code = modelCode + capacity + colorCode;
+      const variants = variantsByCode.get(code) || [];
+      variants.push('iPhone ' + name + ' ' + size + ' ' + color);
+      variantsByCode.set(code, variants);
+    }
+  }
+}
+const rows = [];
+const date = byId('date');
+const supplier = byId('supplier');
+const model = byId('model');
+const imei = byId('imei');
+const imeiError = byId('imeiError');
+const picker = byId('modelPicker');
+const suggestionList = byId('suggestions');
+const stockText = byId('stockText');
+const stockStatus = byId('stockStatus');
+let importedStock = [];
+let visibleOptions = [];
+let activeOption = -1;
+let catalogOptions = [];
+date.value = new Intl.DateTimeFormat('sv-SE').format(new Date());
+
+function categoryOf(title) {
+  const capacity = /\s+\d+\s*(?:GB|TB|ГБ|ТБ|G|T)(?=\s|$)/iu.exec(title);
+  if (capacity) return title.slice(0, capacity.index);
+  return /^iPhone\s+(?:\d+[ecrs]?|SE|Air|X[RS]?)(?:\s+(?:Pro Max|Pro|Plus|mini|Max|Air))?(?=\s|$)/i.exec(title)?.[0] || '';
+}
+const russianKeys = 'йцукенгшщзхъфывапролджэячсмитьбюё';
+const latinKeys = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`";
+function normalizeCode(value) {
+  return value.trim().toLowerCase().replace(/[а-яё]/gu, letter => latinKeys[russianKeys.indexOf(letter)]);
+}
+function normalizeCapacityTitle(title) {
+  return title.replace(/\s+1\s*(?:tb|тб|t)(?=\s|$)/iu, ' 1024 Gb');
+}
+function normalizeTitle(value) {
+  return normalizeCapacityTitle(value).trim().toLowerCase().replaceAll('ё', 'е').replace(/\s+/g, ' ');
+}
+function findModels(value) {
+  const codeQuery = normalizeCode(value);
+  const nameQuery = normalizeTitle(value);
+  if (!nameQuery) return [];
+  return catalogOptions.filter(option =>
+    option.code.startsWith(codeQuery) || option.name.startsWith(nameQuery) ||
+    option.name.slice('iphone '.length).startsWith(nameQuery)
+  );
+}
+function resolveModel() {
+  const input = model.value.trim();
+  const exactCode = codes.get(input.toLowerCase()) || codes.get(normalizeCode(input));
+  if (exactCode) return normalizeCapacityTitle(exactCode);
+  const variants = variantsByCode.get(normalizeCode(input)) || [];
+  if (variants.length) return variants.length === 1 ? variants[0] : '';
+
+  const matches = findModels(input);
+  const title = matches.find(option => option.name === normalizeTitle(input))?.title;
+  if (title) return title;
+  return !matches.length && categoryOf(input) ? normalizeCapacityTitle(input) : '';
+}
+function closeSuggestions() {
+  suggestionList.hidden = true;
+  model.setAttribute('aria-expanded', 'false');
+  model.removeAttribute('aria-activedescendant');
+  activeOption = -1;
+}
+function selectModel(option) {
+  model.value = option.title;
+  updateModel(false);
+  imei.focus();
+}
+function showSuggestions(matches) {
+  visibleOptions = matches.slice(0, 40);
+  closeSuggestions();
+  suggestionList.replaceChildren(...visibleOptions.map((option, index) => {
+    const item = document.createElement('li');
+    item.id = 'model-option-' + index;
+    item.setAttribute('role', 'option');
+    item.setAttribute('aria-selected', 'false');
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.tabIndex = -1;
+    button.textContent = option.title;
+    const code = document.createElement('small');
+    code.textContent = option.code;
+    button.append(code);
+    button.addEventListener('mousedown', event => event.preventDefault());
+    button.onclick = () => selectModel(option);
+    item.append(button);
+    return item;
+  }));
+  suggestionList.hidden = !visibleOptions.length;
+  model.setAttribute('aria-expanded', String(!suggestionList.hidden));
+}
+function unmarkedTitle(title) {
+  return title.replace(/\s+\(ошибка\)$/iu, '');
+}
+function batchTitle(title) {
+  return imeiError.checked ? unmarkedTitle(title) + ' (ошибка)' : title;
+}
+function updateModel(show = true) {
+  const matches = findModels(model.value);
+  const title = resolveModel();
+  byId('scanModel').textContent = title ? batchTitle(title) : '';
+  byId('scanModel').hidden = !title;
+  byId('resolved').textContent = title ? title + ' · Категория: ' + categoryOf(title) :
+    matches.length ? 'Выберите модель и цвет из списка.' :
+      'Например, 14p256f или 14з256а → iPhone 14 Pro 256 Gb Фиолетовый';
+  if (show) showSuggestions(matches);
+  else closeSuggestions();
+}
+function updateCodes() {
+  catalogOptions = [];
+  for (const [code, variants] of variantsByCode) {
+    if (!codes.has(code)) for (const title of variants) catalogOptions.push({code, title, name:normalizeTitle(title)});
+  }
+  for (const [code, savedTitle] of codes) {
+    const title = normalizeCapacityTitle(savedTitle);
+    catalogOptions.push({code, title, name:normalizeTitle(title)});
+  }
+  updateModel(false);
+}
+function highlightOption(index) {
+  if (activeOption >= 0) suggestionList.children[activeOption].setAttribute('aria-selected', 'false');
+  activeOption = index;
+  const item = suggestionList.children[index];
+  item.setAttribute('aria-selected', 'true');
+  model.setAttribute('aria-activedescendant', item.id);
+  item.scrollIntoView({block:'nearest'});
+}
+function groupBy(entries, field) {
+  const groups = new Map();
+  for (const entry of entries) {
+    if (!groups.has(entry[field])) groups.set(entry[field], []);
+    groups.get(entry[field]).push(entry);
+  }
+  return groups;
+}
+function groupByDate(entries) {
+  return [...groupBy(entries, 'date')].sort(([a], [b]) => a.localeCompare(b));
+}
+function dateLabel(value, withYear = false) {
+  const [year, month, day] = value.split('-');
+  return day + '.' + month + (withYear ? '.' + year : '');
+}
+function imeiValues() {
+  return imei.value.trim().split(/[\s,;]+/).filter(Boolean);
+}
+function updateImeiCount() {
+  const alreadyAdded = new Set(rows.map(entry => entry.imei));
+  const values = imeiValues();
+  const valid = new Set(values.filter(value => /^\d{15}$/.test(value) && !alreadyAdded.has(value)));
+  const skipped = values.length - valid.size;
+  byId('imeiCount').textContent = valid.size + ' IMEI' + (skipped ? ' · проверить: ' + skipped : '');
+}
+function editCell(cell, value, label, field, commit) {
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = value;
+  input.className = 'cell-edit ' + field + '-edit';
+  input.maxLength = field === 'model' ? 200 : field === 'supplier' ? 150 : 80;
+  if (field === 'imei') input.inputMode = 'numeric';
+  input.setAttribute('aria-label', label);
+  input.addEventListener('change', () => {
+    const result = commit(input.value.trim());
+    input.value = result.value;
+    byId('tableStatus').textContent = result.error || '';
+  });
+  input.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' && event.key !== 'Escape') return;
+    event.preventDefault();
+    if (event.key === 'Escape') input.value = input.defaultValue;
+    input.blur();
+  });
+  input.addEventListener('focus', () => { input.defaultValue = input.value; });
+  cell.append(input);
+}
+function changeRowTitle(entry, value, categoryCell) {
+  const title = normalizeCapacityTitle(value);
+  const category = categoryOf(unmarkedTitle(title));
+  if (!category) return {value:entry.title, error:'Введите полное название модели.'};
+  entry.title = title;
+  entry.category = category;
+  categoryCell.textContent = category;
+  renderStockPlan();
+  return {value:title};
+}
+function changeRowImei(entry, value, remove) {
+  if (!/^\d{15}$/.test(value)) return {value:entry.imei, error:'IMEI должен содержать ровно 15 цифр.'};
+  if (rows.some(row => row !== entry && row.imei === value)) return {value:entry.imei, error:'Такой IMEI уже есть в таблице.'};
+  entry.imei = value;
+  remove.setAttribute('aria-label', 'Удалить IMEI ' + value);
+  updateImeiCount();
+  return {value};
+}
+function renameSupplier(entries, current, value) {
+  if (!value) return {value:current, error:'Введите имя поставщика.'};
+  if (value !== current) {
+    for (const entry of entries) entry.supplier = value;
+    if (supplier.value.trim() === current && date.value === entries[0].date) supplier.value = value;
+    render();
+  }
+  return {value};
+}
+function render() {
+  const body = byId('rows');
+  body.replaceChildren();
+  if (!rows.length) {
+    const cell = body.insertRow().insertCell();
+    cell.colSpan = 6;
+    cell.className = 'empty';
+    cell.textContent = 'Добавьте первый товар';
+  }
+  const suppliers = [...new Set(rows.map(entry => entry.supplier))];
+  byId('suppliers').replaceChildren(...suppliers.map(name => {
+    const option = document.createElement('option');
+    option.value = name;
+    return option;
+  }));
+  const days = groupByDate(rows);
+  for (const [day, deliveries] of days) {
+    const dateRow = body.insertRow();
+    dateRow.className = 'date-band';
+    const heading = document.createElement('th');
+    heading.colSpan = 6;
+    heading.textContent = dateLabel(day, true);
+    dateRow.append(heading);
+    let supplierIndex = 0;
+    for (const [name, entries] of groupBy(deliveries, 'supplier')) {
+      entries.forEach((entry, index) => {
+        const row = body.insertRow();
+        if (index === 0 && supplierIndex > 0) row.className = 'supplier-start';
+        const modelCell = row.insertCell();
+        const categoryCell = row.insertCell();
+        const imeiCell = row.insertCell();
+        row.insertCell().textContent = '1';
+        const supplierCell = row.insertCell();
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'remove';
+        remove.textContent = '×';
+        remove.setAttribute('aria-label', 'Удалить IMEI ' + entry.imei);
+        remove.onclick = () => { rows.splice(rows.indexOf(entry), 1); render(); };
+        row.insertCell().append(remove);
+
+        categoryCell.textContent = entry.category;
+        editCell(modelCell, entry.title, 'Название модели', 'model', value => changeRowTitle(entry, value, categoryCell));
+        editCell(imeiCell, entry.imei, 'IMEI', 'imei', value => changeRowImei(entry, value, remove));
+        if (index === 0) {
+          const group = document.createElement('div');
+          group.className = 'supplier-cell';
+          editCell(group, name, 'Поставщик за ' + dateLabel(day, true), 'supplier', value => renameSupplier(entries, name, value));
+          const count = document.createElement('span');
+          count.className = 'supplier-count';
+          count.textContent = entries.length + ' шт.';
+          group.append(count);
+          supplierCell.append(group);
+        }
+      });
+      supplierIndex++;
+    }
+  }
+  byId('count').textContent = rows.length + ' шт.';
+  byId('export').disabled = !rows.length;
+  byId('stockBuild').disabled = !rows.length;
+  updateImeiCount();
+  renderStockPlan();
+}
+imei.addEventListener('input', updateImeiCount);
+imeiError.addEventListener('change', () => updateModel(false));
+model.addEventListener('input', () => updateModel());
+model.addEventListener('focus', () => updateModel());
+picker.addEventListener('focusout', event => {
+  if (!picker.contains(event.relatedTarget)) closeSuggestions();
+});
+model.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && !suggestionList.hidden) {
+    event.preventDefault();
+    closeSuggestions();
+  } else if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+    if (suggestionList.hidden) updateModel();
+    if (suggestionList.hidden) return;
+    event.preventDefault();
+    const next = event.key === 'ArrowDown' ? Math.min(activeOption + 1, visibleOptions.length - 1) :
+      activeOption < 0 ? visibleOptions.length - 1 : Math.max(activeOption - 1, 0);
+    highlightOption(next);
+  } else if (event.key === 'Enter' && !suggestionList.hidden) {
+    if (activeOption < 0 && resolveModel()) return;
+    event.preventDefault();
+    if (activeOption >= 0) selectModel(visibleOptions[activeOption]);
+    else highlightOption(0);
+  }
+});
+byId('add').onsubmit = event => {
+  event.preventDefault();
+  const status = byId('addStatus');
+  if (!date.reportValidity()) return;
+  const supplierName = supplier.value.trim();
+  if (!supplierName) {
+    status.textContent = 'Укажите поставщика.';
+    supplier.focus();
+    return;
+  }
+  const title = resolveModel();
+  const category = categoryOf(title);
+  if (!category) {
+    status.textContent = findModels(model.value).length ? 'Выберите нужный вариант из списка.' :
+      'Введите полное название или добавьте этот код в справочник ниже.';
+    model.focus();
+    updateModel();
+    return;
+  }
+  const values = imeiValues();
+  if (!values.length) {
+    status.textContent = 'Вставьте хотя бы один IMEI.';
+    imei.focus();
+    return;
+  }
+  const bad = values.find(value => !/^\d{15}$/.test(value));
+  if (bad !== undefined) {
+    status.textContent = 'IMEI должен содержать ровно 15 цифр' + (bad ? ' — проверьте «' + bad.slice(0, 40) + '».' : '.');
+    return;
+  }
+  const seen = new Set(rows.map(entry => entry.imei));
+  for (const value of values) {
+    if (seen.has(value)) {
+      status.textContent = 'IMEI ' + value + ' повторяется. Уберите дубль и повторите добавление.';
+      return;
+    }
+    seen.add(value);
+  }
+  const markedTitle = batchTitle(title);
+  rows.push(...values.map(value => ({title:markedTitle, category, imei:value, supplier:supplierName, date:date.value})));
+  status.textContent = '';
+  imei.value = '';
+  imeiError.checked = false;
+  updateModel(false);
+  render();
+  imei.focus();
+};
+byId('catalog').onsubmit = event => {
+  event.preventDefault();
+  const code = normalizeCode(byId('alias').value);
+  const title = normalizeCapacityTitle(byId('title').value.trim());
+  const status = byId('catalogStatus');
+  if (!/^[a-z0-9_-]+$/.test(code) || !categoryOf(title)) {
+    status.textContent = 'Введите код без пробелов и название с моделью iPhone или объёмом памяти.';
+    return;
+  }
+  codes.set(code, title);
+  updateCodes();
+  event.target.reset();
+  try {
+    localStorage.setItem(catalogKey, JSON.stringify(Object.fromEntries(codes)));
+    status.textContent = 'Код «' + code + '» сохранён.';
+  } catch { status.textContent = 'Код доступен до закрытия страницы.'; }
+};
+
+const colorEmoji = new Map([
+  ['Чёрный','🖤'], ['Золотой','💛'], ['Зелёный','💚'], ['Белый','🤍'],
+  ['Синий','💙'], ['Красный','❤️'], ['Розовый','🩷'], ['Фиолетовый','💜'],
+  ['Голубой','🩵'], ['Жёлтый','🟡'], ['Коралловый','🪸'], ['Оранжевый','🧡'],
+  ['Титан','🩶'], ['Десерт','🏜️']
+]);
+const stockColors = new Map([...colorEmoji].map(([color, emoji]) => [emoji.replaceAll('️',''), color]));
+const stockVariants = new Map();
+function stockVariant(title) {
+  title = normalizeCapacityTitle(unmarkedTitle(title));
+  const category = categoryOf(title);
+  const parts = /^(\d+)\s*(gb|tb|гб|тб|g|t)\s+(.+)$/iu.exec(title.slice(category.length).trim());
+  if (!category || !parts) return null;
+  const [, capacity, unit, rawColor] = parts;
+  const color = [...colorEmoji.keys()].find(name => normalizeTitle(name) === normalizeTitle(rawColor));
+  if (!color) return null;
+  const size = capacity + (/^(tb|тб|t)$/i.test(unit) ? 'T' : '');
+  return {model:category.replace(/^iPhone\s+/i,''), size, color};
+}
+for (const titles of variantsByCode.values()) {
+  for (const title of titles) {
+    const {model, size, color} = stockVariant(title);
+    stockVariants.set(normalizeTitle(model + ' ' + size + ' ' + color), title);
+  }
+}
+
+function formatStock(entries) {
+  const days = groupByDate(entries);
+  return days.map(([day, deliveries]) => {
+    const groups = new Map();
+    for (const entry of deliveries) {
+      const variant = stockVariant(entry.title);
+      if (!variant) throw new Error('Не удалось определить модель, память или цвет: ' + entry.title);
+      const label = variant.model + ' ' + variant.size;
+      if (!groups.has(label)) groups.set(label, new Map());
+      const counts = groups.get(label);
+      counts.set(variant.color, (counts.get(variant.color) || 0) + 1);
+    }
+    const lines = [...groups].sort(([a],[b]) => a.localeCompare(b, 'en', {numeric:true})).map(([label, counts]) =>
+      label + ' - ' + [...counts].map(([color, count]) => count + colorEmoji.get(color)).join(' '));
+    if (days.length > 1) lines.unshift(dateLabel(day, true));
+    return lines.join('\n');
+  }).join('\n\n');
+}
+
+function parseStock(text, defaultDay) {
+  const items = new Map();
+  let day = defaultDay;
+  for (const [index, raw] of text.split(/\r?\n/).entries()) {
+    const line = raw.trim().replace(/\\$/, '').trim().replaceAll('️','');
+    if (!line) continue;
+    const heading = /^(\d{2})\.(\d{2})(?:\.(\d{4}))?$/.exec(line);
+    if (heading) {
+      day = (heading[3] || defaultDay.slice(0,4)) + '-' + heading[2] + '-' + heading[1];
+      const parsed = new Date(day + 'T00:00:00Z');
+      if (Number.isNaN(+parsed) || parsed.toISOString().slice(0,10) !== day) {
+        throw new Error('Строка ' + (index + 1) + ': проверьте дату.');
+      }
+      continue;
+    }
+    const row = /^(.+?)\s+[-–—]\s*(.+)$/u.exec(line);
+    if (!row) throw new Error('Строка ' + (index + 1) + ': ожидается формат «11 Pro 256 - 2🖤».');
+    const label = normalizeCapacityTitle(row[1].replace(/^iPhone\s+/i, ''))
+      .replace(/(\s1024)\s*(?:gb|гб)$/iu, '$1');
+    let rest = row[2].trim();
+    while (rest) {
+      const token = /^(\d+)\s*(\p{Extended_Pictographic})\s*/u.exec(rest);
+      const color = token && stockColors.get(token[2]);
+      const count = token && Number(token[1]);
+      if (!color || !Number.isSafeInteger(count) || count < 1) {
+        throw new Error('Строка ' + (index + 1) + ': проверьте количество и эмодзи цвета.');
+      }
+      const title = stockVariants.get(normalizeTitle(label + ' ' + color));
+      if (!title) throw new Error('Строка ' + (index + 1) + ': нет варианта «' + label + ' ' + color + '» в справочнике.');
+      const key = day + '|' + title;
+      const total = (items.get(key)?.count || 0) + count;
+      if (!Number.isSafeInteger(total)) throw new Error('Строка ' + (index + 1) + ': слишком большое количество.');
+      items.set(key, {date:day, title, count:total});
+      rest = rest.slice(token[0].length);
+    }
+  }
+  if (!items.size) throw new Error('Вставьте текст складской добавки.');
+  return [...items.values()];
+}
+
+function renderStockPlan() {
+  const plan = byId('stockPlan');
+  const received = new Map();
+  for (const row of rows) {
+    const key = row.date + '|' + normalizeTitle(unmarkedTitle(row.title));
+    received.set(key, (received.get(key) || 0) + 1);
+  }
+  plan.replaceChildren(...importedStock.map(item => {
+    const scanned = received.get(item.date + '|' + normalizeTitle(item.title)) || 0;
+    const row = document.createElement('li');
+    const label = document.createElement('span');
+    label.textContent = dateLabel(item.date) + ' · ' + item.title + ' · ' + scanned + ' из ' + item.count;
+    const pick = document.createElement('button');
+    pick.type = 'button';
+    pick.className = 'secondary';
+    pick.textContent = scanned >= item.count ? 'Готово' : 'Сканировать';
+    pick.disabled = scanned >= item.count;
+    pick.onclick = () => {
+      date.value = item.date;
+      selectModel(item);
+    };
+    row.append(label, pick);
+    return row;
+  }));
+}
+
+byId('stockBuild').onclick = () => {
+  try {
+    stockText.value = formatStock(rows);
+    stockStatus.textContent = 'Текст собран из таблицы товаров.';
+    stockText.focus();
+  } catch (error) { stockStatus.textContent = error.message; }
+};
+byId('stockCopy').onclick = async () => {
+  if (!stockText.value.trim()) {
+    stockStatus.textContent = 'Сначала соберите или вставьте текст.';
+    return;
+  }
+  try {
+    await navigator.clipboard.writeText(stockText.value);
+    stockStatus.textContent = 'Текст скопирован.';
+  } catch {
+    stockText.focus();
+    stockText.select();
+    stockStatus.textContent = 'Текст выделен. Нажмите ⌘C или Ctrl+C.';
+  }
+};
+byId('stockImport').onclick = () => {
+  if (!date.reportValidity()) return;
+  try {
+    const items = parseStock(stockText.value, date.value);
+    importedStock = items;
+    renderStockPlan();
+    stockStatus.textContent = 'Загружено позиций: ' + items.length + '. Выберите позицию для сканирования IMEI.';
+  } catch (error) { stockStatus.textContent = error.message; }
+};
+
+// XLSX is an Open XML package. Store its small XML parts in an uncompressed ZIP.
+const utf8 = new TextEncoder();
+const crcTable = Uint32Array.from({length:256}, (_, initial) => {
+  let crc = initial;
+  for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ (crc & 1 ? 0xedb88320 : 0);
+  return crc;
+});
+function zip(parts) {
+  const local = [], central = [];
+  let offset = 0, directorySize = 0;
+  const record = size => {
+    const bytes = new Uint8Array(size);
+    const view = new DataView(bytes.buffer);
+    return {bytes, u16:(at, value) => view.setUint16(at, value, true), u32:(at, value) => view.setUint32(at, value, true)};
+  };
+  for (const [path, content] of Object.entries(parts)) {
+    const name = utf8.encode(path), data = utf8.encode(content);
+    let crc = 0xffffffff;
+    for (const byte of data) crc = crcTable[(crc ^ byte) & 255] ^ (crc >>> 8);
+    crc ^= 0xffffffff;
+
+    const header = record(30);
+    header.u32(0, 0x04034b50); header.u16(4, 20); header.u16(12, 33);
+    header.u32(14, crc); header.u32(18, data.length); header.u32(22, data.length); header.u16(26, name.length);
+    local.push(header.bytes, name, data);
+
+    const entry = record(46);
+    entry.u32(0, 0x02014b50); entry.u16(4, 20); entry.u16(6, 20); entry.u16(14, 33);
+    entry.u32(16, crc); entry.u32(20, data.length); entry.u32(24, data.length);
+    entry.u16(28, name.length); entry.u32(42, offset);
+    central.push(entry.bytes, name);
+    offset += 30 + name.length + data.length;
+    directorySize += 46 + name.length;
+  }
+  const end = record(22);
+  end.u32(0, 0x06054b50);
+  end.u16(8, Object.keys(parts).length); end.u16(10, Object.keys(parts).length);
+  end.u32(12, directorySize); end.u32(16, offset);
+  return new Blob([...local, ...central, end.bytes], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+}
+
+const xml = value => String(value).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/g, '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+const sheetNs = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main';
+const officeNs = 'http://schemas.openxmlformats.org/officeDocument/2006/relationships';
+const packNs = 'http://schemas.openxmlformats.org/package/2006';
+const textCell = (ref, value, style = 0) => '<c r="' + ref + '" s="' + style + '" t="inlineStr"><is><t xml:space="preserve">' + xml(value) + '</t></is></c>';
+function workbook(entries) {
+  const data = [];
+  let rowNumber = 1;
+  const days = groupByDate(entries);
+  for (const [day, deliveries] of days) {
+    if (data.length) rowNumber++;
+    data.push('<row r="'+rowNumber+'">'+textCell('A'+rowNumber, dateLabel(day, days.length > 1), 2)+'</row>');
+    rowNumber++;
+    let supplierIndex = 0;
+    for (const [name, items] of groupBy(deliveries, 'supplier')) {
+      if (supplierIndex++) rowNumber++;
+      items.forEach((entry, index) => {
+        const n = rowNumber++;
+        const cells = textCell('A'+n, entry.title) + textCell('B'+n, entry.category) +
+          textCell('C'+n, entry.imei, 1) + '<c r="D'+n+'"><v>1</v></c>' +
+          (index === 0 ? textCell('E'+n, name) + '<c r="F'+n+'"><v>'+items.length+'</v></c>' : '');
+        data.push('<row r="'+n+'">'+cells+'</row>');
+      });
+    }
+  }
+  return zip({
+    '[Content_Types].xml': '<Types xmlns="'+packNs+'/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>',
+    '_rels/.rels': '<Relationships xmlns="'+packNs+'/relationships"><Relationship Id="rId1" Type="'+officeNs+'/officeDocument" Target="xl/workbook.xml"/></Relationships>',
+    'xl/workbook.xml': '<workbook xmlns="'+sheetNs+'" xmlns:r="'+officeNs+'"><sheets><sheet name="Добавка" sheetId="1" r:id="rId1"/></sheets></workbook>',
+    'xl/_rels/workbook.xml.rels': '<Relationships xmlns="'+packNs+'/relationships"><Relationship Id="rId1" Type="'+officeNs+'/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="'+officeNs+'/styles" Target="styles.xml"/></Relationships>',
+    'xl/styles.xml': '<styleSheet xmlns="'+sheetNs+'"><fonts count="1"><font><sz val="11"/><name val="Calibri"/></font></fonts><fills count="2"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="49" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment horizontal="right"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>',
+    'xl/worksheets/sheet1.xml': '<worksheet xmlns="'+sheetNs+'"><cols><col min="1" max="1" width="46" customWidth="1"/><col min="2" max="2" width="24" customWidth="1"/><col min="3" max="3" width="19" customWidth="1" style="1"/><col min="4" max="4" width="8" customWidth="1"/><col min="5" max="5" width="24" customWidth="1"/><col min="6" max="6" width="8" customWidth="1"/></cols><sheetData>'+data.join('')+'</sheetData></worksheet>'
+  });
+}
+byId('export').onclick = () => {
+  const status = byId('exportStatus');
+  const days = groupByDate(rows).map(([day]) => day);
+  if (!days.length) return;
+  const url = URL.createObjectURL(workbook(rows));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = 'Добавка_' + days[0] + (days.length > 1 ? '–' + days.at(-1) : '') + '.xlsx';
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000);
+  status.textContent = '';
+};
+updateCodes();
+render();
+</script>
+</html>
