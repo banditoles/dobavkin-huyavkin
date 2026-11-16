@@ -8,6 +8,7 @@
 .imei-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}.imei-head label{margin:0}.imei-count{background:#eaf1e7;color:#254932;border-radius:20px;padding:4px 9px;font-size:12px;font-weight:700;white-space:nowrap}.scan-model{display:block;font-size:14px;color:#235b3e;margin-bottom:8px}.scan-model[hidden]{display:none}.date-band th{background:#eaf1e7;color:#173a29}.actions{display:flex;flex-wrap:wrap;gap:8px}.stock-card{margin-top:18px}.stock-card textarea{min-height:118px}.stock-plan{list-style:none;padding:0;margin:12px 0 0}.stock-plan li{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:7px 0;font-size:14px}
 .imei-flag{display:flex;align-items:center;gap:8px;width:fit-content;margin:10px 0 0;cursor:pointer}.imei-flag input{width:16px;height:16px;margin:0;accent-color:var(--green)}
 .cell-edit{display:block;min-width:0;padding:6px 7px;border:1px solid transparent;border-radius:6px;background:transparent}.cell-edit:hover{border-color:#cbd8cb}.cell-edit:focus{border-color:#3a8158;background:#fbfcfa;outline-offset:0}.model-edit{width:100%;min-width:280px}.imei-edit{width:18ch}.supplier-edit{width:100%;min-width:110px}.supplier-cell{display:flex;align-items:center;gap:5px}.supplier-count{font-size:12px;color:#235b3e;background:#eaf1e7;padding:3px 7px;border-radius:20px;white-space:nowrap}
+.scan-area{text-align:center}.scan-area .imei-head{justify-content:center}.scan-area .scan-model{margin-inline:auto}.scan-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.scan-grid:empty{display:none}.scan-grid:not(:empty){margin-bottom:8px}.scan-cell{display:flex;align-items:center;gap:2px;background:#f1f5ef;border:1px solid var(--line);border-radius:9px;padding:2px}.scan-cell input,#imei{width:19ch;text-align:center;font:14px ui-monospace,monospace}.scan-cell input{background:transparent;border-color:transparent;padding:6px 3px}.scan-cell .remove{padding:2px 6px}.scan-area .imei-flag{margin-inline:auto}.scan-area #imei{width:min(100%,24ch)}
 </style>
 <header>Приёмка товара</header>
 <main>
@@ -24,7 +25,7 @@
 <div class="field"><label for="model">Код или полное название модели</label>
 <div class="model-picker" id="modelPicker"><input id="model" placeholder="14p2561" autocomplete="off" maxlength="200" required role="combobox" aria-autocomplete="list" aria-controls="suggestions" aria-expanded="false"><ul class="suggestions" id="suggestions" role="listbox" aria-label="Подходящие модели" hidden></ul></div>
 <p id="resolved" class="hint" aria-live="polite">Например, 14p256f или 14з256а → iPhone 14 Pro 256 Gb Фиолетовый</p></div>
-<div class="field"><div class="imei-head"><label for="imei">IMEI</label><output class="imei-count" id="imeiCount" for="imei">0 IMEI</output></div><strong class="scan-model" id="scanModel" hidden></strong><textarea id="imei" placeholder="Вставьте один или несколько IMEI" aria-describedby="scanModel imeiCount" required></textarea><p class="hint">Можно вставить столбец из Excel. Каждый IMEI содержит 15 цифр.</p><label class="imei-flag"><input id="imeiError" type="checkbox">Пометить как ошибку</label></div>
+<div class="field scan-area"><div class="imei-head"><label for="imei">IMEI</label><output class="imei-count" id="imeiCount" for="imei">0 IMEI</output></div><strong class="scan-model" id="scanModel" hidden></strong><div id="scanGrid" class="scan-grid" role="group" aria-label="Отсканированные IMEI"></div><input id="imei" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Сканируйте IMEI" aria-describedby="scanModel imeiCount scanHint"><p class="hint" id="scanHint">После 15 цифр IMEI появится в отдельной ячейке. Можно вставить столбец из Excel.</p><label class="imei-flag"><input id="imeiError" type="checkbox">Пометить как ошибку</label></div>
 <button type="submit">Добавить в таблицу</button>
 <p class="status" id="addStatus" role="status"></p>
 </form>
@@ -125,6 +126,8 @@ const supplier = byId('supplier');
 const model = byId('model');
 const imei = byId('imei');
 const imeiError = byId('imeiError');
+const scanGrid = byId('scanGrid');
+const scanInputs = [];
 const picker = byId('modelPicker');
 const suggestionList = byId('suggestions');
 const stockText = byId('stockText');
@@ -257,8 +260,50 @@ function dateLabel(value, withYear = false) {
   const [year, month, day] = value.split('-');
   return day + '.' + month + (withYear ? '.' + year : '');
 }
+function splitImeis(text) {
+  return text.trim().split(/[\s,;]+/).filter(Boolean);
+}
 function imeiValues() {
-  return imei.value.trim().split(/[\s,;]+/).filter(Boolean);
+  return [...scanInputs.map(input => input.value.trim()), ...splitImeis(imei.value)];
+}
+function addScanCells(values) {
+  for (const value of values) {
+    const cell = document.createElement('div');
+    cell.className = 'scan-cell';
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.inputMode = 'numeric';
+    input.value = value;
+    input.setAttribute('aria-label', 'Отсканированный IMEI');
+    input.addEventListener('input', updateImeiCount);
+    input.addEventListener('keydown', event => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault();
+      imei.focus();
+    });
+    const remove = document.createElement('button');
+    remove.type = 'button';
+    remove.className = 'remove';
+    remove.textContent = '×';
+    remove.setAttribute('aria-label', 'Убрать IMEI из текущей партии');
+    remove.onclick = () => {
+      scanInputs.splice(scanInputs.indexOf(input), 1);
+      cell.remove();
+      updateImeiCount();
+      imei.focus();
+    };
+    scanInputs.push(input);
+    cell.append(input, remove);
+    scanGrid.append(cell);
+  }
+}
+function acceptScan() {
+  const values = splitImeis(imei.value);
+  if (values.length > 1 || /^\d{15}$/.test(values[0] || '')) {
+    addScanCells(values);
+    imei.value = '';
+  }
+  updateImeiCount();
 }
 function updateImeiCount() {
   const alreadyAdded = new Set(rows.map(entry => entry.imei));
@@ -296,7 +341,7 @@ function changeRowTitle(entry, value, categoryCell) {
   entry.title = title;
   entry.category = category;
   categoryCell.textContent = category;
-  renderStockPlan();
+  render();
   return {value:title};
 }
 function changeRowImei(entry, value, remove) {
@@ -341,7 +386,7 @@ function render() {
     dateRow.append(heading);
     let supplierIndex = 0;
     for (const [name, entries] of groupBy(deliveries, 'supplier')) {
-      entries.forEach((entry, index) => {
+      sortProducts(entries).forEach((entry, index) => {
         const row = body.insertRow();
         if (index === 0 && supplierIndex > 0) row.className = 'supplier-start';
         const modelCell = row.insertCell();
@@ -380,7 +425,21 @@ function render() {
   updateImeiCount();
   renderStockPlan();
 }
-imei.addEventListener('input', updateImeiCount);
+imei.addEventListener('input', acceptScan);
+imei.addEventListener('paste', event => {
+  const values = splitImeis(event.clipboardData?.getData('text/plain') || '');
+  if (values.length < 2) return;
+  event.preventDefault();
+  const partial = imei.value.slice(0, imei.selectionStart) + imei.value.slice(imei.selectionEnd);
+  addScanCells([...splitImeis(partial), ...values]);
+  imei.value = '';
+  updateImeiCount();
+});
+imei.addEventListener('keydown', event => {
+  if (event.key !== 'Enter') return;
+  event.preventDefault();
+  acceptScan();
+});
 imeiError.addEventListener('change', () => updateModel(false));
 model.addEventListener('input', () => updateModel());
 model.addEventListener('focus', () => updateModel());
@@ -447,6 +506,8 @@ byId('add').onsubmit = event => {
   rows.push(...values.map(value => ({title:markedTitle, category, imei:value, supplier:supplierName, date:date.value})));
   status.textContent = '';
   imei.value = '';
+  scanInputs.length = 0;
+  scanGrid.replaceChildren();
   imeiError.checked = false;
   updateModel(false);
   render();
@@ -478,15 +539,31 @@ const colorEmoji = new Map([
 ]);
 const stockColors = new Map([...colorEmoji].map(([color, emoji]) => [emoji.replaceAll('️',''), color]));
 const stockVariants = new Map();
-function stockVariant(title) {
+function productParts(title) {
   title = normalizeCapacityTitle(unmarkedTitle(title));
   const category = categoryOf(title);
-  const parts = /^(\d+)\s*(gb|tb|гб|тб|g|t)\s+(.+)$/iu.exec(title.slice(category.length).trim());
+  const parts = /^(\d+)\s*(gb|tb|гб|тб|g|t)(?:\s+(.+))?$/iu.exec(title.slice(category.length).trim());
   if (!category || !parts) return null;
-  const [, capacity, unit, rawColor] = parts;
+  const [, capacity, unit, rawColor = ''] = parts;
+  return {category, capacity, terabytes:/^(tb|тб|t)$/iu.test(unit), rawColor};
+}
+const productCollator = new Intl.Collator('ru', {numeric:true, sensitivity:'base'});
+function sortProducts(entries) {
+  return entries.map(entry => ({entry, parts:productParts(entry.title)}))
+    .sort((a, b) => {
+      const modelOrder = productCollator.compare(a.entry.category, b.entry.category);
+      const capacity = parts => parts ? Number(parts.capacity) * (parts.terabytes ? 1024 : 1) : Infinity;
+      return modelOrder || (capacity(a.parts) - capacity(b.parts)) ||
+        productCollator.compare(a.parts?.rawColor || '', b.parts?.rawColor || '');
+    }).map(({entry}) => entry);
+}
+function stockVariant(title) {
+  const parts = productParts(title);
+  if (!parts) return null;
+  const {category, capacity, terabytes, rawColor} = parts;
   const color = [...colorEmoji.keys()].find(name => normalizeTitle(name) === normalizeTitle(rawColor));
   if (!color) return null;
-  const size = capacity + (/^(tb|тб|t)$/i.test(unit) ? 'T' : '');
+  const size = capacity + (terabytes ? 'T' : '');
   return {model:category.replace(/^iPhone\s+/i,''), size, color};
 }
 for (const titles of variantsByCode.values()) {
@@ -669,7 +746,7 @@ function workbook(entries) {
     let supplierIndex = 0;
     for (const [name, items] of groupBy(deliveries, 'supplier')) {
       if (supplierIndex++) rowNumber++;
-      items.forEach((entry, index) => {
+      sortProducts(items).forEach((entry, index) => {
         const n = rowNumber++;
         const cells = textCell('A'+n, entry.title) + textCell('B'+n, entry.category) +
           textCell('C'+n, entry.imei, 1) + '<c r="D'+n+'"><v>1</v></c>' +
