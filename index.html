@@ -2,7 +2,7 @@
 <html lang="ru">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Добавки · Приёмка товара</title>
+<title>Добавочкин хуявочкин · Приёмка товара</title>
 <style>
 :root{font:16px system-ui,sans-serif;color:#17291f;background:#f4f6ef;--green:#235b3e;--line:#dce4d7}*{box-sizing:border-box}body{margin:0}header{background:#173a29;color:#ecf5e9;padding:20px max(22px,calc((100% - 1060px)/2));font-weight:700}main{max-width:1104px;margin:auto;padding:38px 22px 64px}h1{font-size:clamp(35px,6vw,56px);letter-spacing:-.055em;margin:0 0 6px}h2{font-size:20px;margin:0 0 16px}p{margin:0;color:#516458}.intro{margin-bottom:28px}.grid{display:grid;grid-template-columns:1fr 1.5fr;gap:16px;margin-bottom:18px}.card{background:white;border:1px solid var(--line);border-radius:18px;padding:22px;min-width:0}label{display:block;font-weight:650;font-size:14px;margin-bottom:6px}input,textarea,button{font:inherit}.model-picker{position:relative}.suggestions{position:absolute;z-index:3;inset-inline:0;top:100%;margin:4px 0 0;padding:4px;list-style:none;background:#fff;border:1px solid #cbd8cb;border-radius:10px;box-shadow:0 10px 24px #173a2924;max-height:265px;overflow:auto}.suggestions button{width:100%;display:block;text-align:left;background:transparent;color:#17291f;font-size:14px;padding:8px 10px}.suggestions button:hover,.suggestions [aria-selected="true"] button{background:#eaf1e7}.suggestions small{display:block;font:12px ui-monospace,monospace;color:#516458;margin-top:3px}input,textarea{padding:10px 12px;border:1px solid #cbd8cb;border-radius:9px;width:100%;color:inherit;background:#fbfcfa}textarea{resize:vertical;min-height:80px;font-family:ui-monospace,monospace}.field{margin-bottom:14px}.hint{font-size:13px;margin-top:7px;overflow-wrap:anywhere}button{cursor:pointer;border:0;border-radius:9px;background:var(--green);color:white;padding:10px 15px;font-weight:650}button:disabled{opacity:.48;cursor:default}button.secondary{background:#eaf1e7;color:#254932}button.remove{background:transparent;color:#833a35;padding:4px 8px;font-size:19px}.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}.bar h2{margin:0}.scroll{overflow:auto}table{width:100%;border-collapse:collapse;white-space:nowrap}.supplier-start td{border-top:3px solid #a9c3ad}th,td{text-align:left;padding:11px 10px;border-bottom:1px solid var(--line)}th{font-size:13px;color:#516458;background:#f3f7f0}td:nth-child(3){font-family:ui-monospace,monospace}.empty{padding:22px 10px;text-align:center;color:#516458}.status{margin-top:10px;font-size:14px;color:#833a35}.status:empty{display:none}details{margin-top:18px}summary{cursor:pointer;color:var(--green);font-weight:650}details form{margin-top:14px}input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #3a8158;outline-offset:2px}@media(max-width:680px){.grid{grid-template-columns:1fr}main{padding-top:26px}.card{padding:16px}}
 .imei-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}.imei-head label{margin:0}.imei-count{background:#eaf1e7;color:#254932;border-radius:20px;padding:4px 9px;font-size:12px;font-weight:700;white-space:nowrap}.scan-model{display:block;font-size:14px;color:#235b3e;margin-bottom:8px}.scan-model[hidden]{display:none}.date-band th{background:#eaf1e7;color:#173a29}.actions{display:flex;flex-wrap:wrap;gap:8px}.stock-card{margin-top:18px}.stock-card textarea{min-height:118px}.stock-plan{list-style:none;padding:0;margin:12px 0 0}.stock-plan li{display:flex;align-items:center;justify-content:space-between;gap:8px;border-top:1px solid var(--line);padding:7px 0;font-size:14px}
@@ -10,7 +10,8 @@
 .cell-edit{display:block;min-width:0;padding:6px 7px;border:1px solid transparent;border-radius:6px;background:transparent}.cell-edit:hover{border-color:#cbd8cb}.cell-edit:focus{border-color:#3a8158;background:#fbfcfa;outline-offset:0}.model-edit{width:100%;min-width:280px}.imei-edit{width:18ch}.supplier-edit{width:100%;min-width:110px}.supplier-cell{display:flex;align-items:center;gap:5px}.supplier-count{font-size:12px;color:#235b3e;background:#eaf1e7;padding:3px 7px;border-radius:20px;white-space:nowrap}
 .scan-area{text-align:center}.scan-area .imei-head{justify-content:center}.scan-area .scan-model{margin-inline:auto}.scan-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.scan-grid:empty{display:none}.scan-grid:not(:empty){margin-bottom:8px}.scan-cell{display:flex;align-items:center;gap:2px;background:#f1f5ef;border:1px solid var(--line);border-radius:9px;padding:2px}.scan-cell input,#imei{width:19ch;text-align:center;font:14px ui-monospace,monospace}.scan-cell input{background:transparent;border-color:transparent;padding:6px 3px}.scan-cell .remove{padding:2px 6px}.scan-area .imei-flag{margin-inline:auto}.scan-area #imei{width:min(100%,24ch)}
 </style>
-<header>Приёмка товара</header>
+<link rel="stylesheet" href="theme.css">
+<header>Добавочкин хуявочкин</header>
 <main>
 <div class="intro"><h1>Новая добавка</h1><p>Введите поставщика, модель и IMEI, чтобы собрать файл Excel.</p></div>
 <div class="grid">
@@ -45,81 +46,10 @@
 <p class="hint" id="stockStatus" role="status"></p>
 <ul class="stock-plan" id="stockPlan"></ul>
 </section>
-<details class="card">
-<summary>Добавить или изменить короткий код</summary>
-<p class="hint">Код можно набрать в любой раскладке. Цвета: w — белый, b — синий или чёрный, gol — голубой, g — золотой или десерт, y — жёлтый, gr — зелёный, k — коралловый, r — красный, o — оранжевый, p — розовый, t — титан, f — фиолетовый. Для iPhone 15 128 Gb Голубой используйте 15128b. Суффиксы модели: p — Pro, pm — Pro Max, pl — Plus, m — mini. Для 1024 Gb и 2 Tb используйте 1t и 2t.</p>
-<form id="catalog">
-<div class="field"><label for="alias">Короткий код</label><input id="alias" placeholder="Например, 11r" maxlength="40" required></div>
-<div class="field"><label for="title">Полное название модели</label><input id="title" placeholder="iPhone 11 256 Gb Красный" maxlength="200" required></div>
-<button class="secondary" type="submit">Сохранить код</button>
-<p class="hint" id="catalogStatus" role="status">Коды сохраняются в этом браузере.</p>
-</form>
-</details>
+<footer class="page-footer"><a href="codes.html">Добавить или изменить коды ↗</a></footer>
 </main>
+<script src="catalog-data.js"></script>
 <script>
-const byId = id => document.getElementById(id);
-const catalogKey = 'iphone-intake-codes-v1';
-let savedCodes = {};
-try { savedCodes = JSON.parse(localStorage.getItem(catalogKey)) || {}; } catch {}
-const codes = new Map(Object.entries({'14p2561':'iPhone 14 Pro 256 Gb Фиолетовый', ...savedCodes}));
-// Model code, category suffix, available capacities, and Russian color names.
-const models = [
-  ['x', 'X', '64 256', 'Белый|Чёрный'],
-  ['xr', 'XR', '64 128 256', 'Чёрный|Белый|Синий|Жёлтый|Коралловый|Красный'],
-  ['xs', 'XS', '64 256 512', 'Белый|Чёрный|Золотой'],
-  ['xsm', 'XS Max', '64 256 512', 'Белый|Чёрный|Золотой'],
-  ['11', '11', '64 128 256', 'Чёрный|Белый|Зелёный|Жёлтый|Фиолетовый|Красный'],
-  ['11p', '11 Pro', '64 256 512', 'Белый|Чёрный|Золотой|Зелёный'],
-  ['11pm', '11 Pro Max', '64 256 512', 'Белый|Чёрный|Золотой|Зелёный'],
-  ['se2', 'SE (2-го поколения)', '64 128 256', 'Чёрный|Белый|Красный'],
-  ['12m', '12 mini', '64 128 256', 'Чёрный|Белый|Красный|Зелёный|Синий|Фиолетовый'],
-  ['12', '12', '64 128 256', 'Чёрный|Белый|Красный|Зелёный|Синий|Фиолетовый'],
-  ['12p', '12 Pro', '128 256 512', 'Белый|Чёрный|Золотой|Синий'],
-  ['12pm', '12 Pro Max', '128 256 512', 'Белый|Чёрный|Золотой|Синий'],
-  ['13m', '13 mini', '128 256 512', 'Красный|Белый|Чёрный|Синий|Розовый|Зелёный'],
-  ['13', '13', '128 256 512', 'Красный|Белый|Чёрный|Синий|Розовый|Зелёный'],
-  ['13p', '13 Pro', '128 256 512 1t', 'Чёрный|Золотой|Белый|Голубой|Зелёный'],
-  ['13pm', '13 Pro Max', '128 256 512 1t', 'Чёрный|Золотой|Белый|Голубой|Зелёный'],
-  ['se3', 'SE (3-го поколения)', '64 128 256', 'Красный|Белый|Чёрный'],
-  ['14', '14', '128 256 512', 'Чёрный|Белый|Красный|Синий|Фиолетовый|Жёлтый'],
-  ['14pl', '14 Plus', '128 256 512', 'Чёрный|Белый|Красный|Синий|Фиолетовый|Жёлтый'],
-  ['14p', '14 Pro', '128 256 512 1t', 'Белый|Золотой|Чёрный|Фиолетовый'],
-  ['14pm', '14 Pro Max', '128 256 512 1t', 'Белый|Золотой|Чёрный|Фиолетовый'],
-  ['15', '15', '128 256 512', 'Чёрный|Голубой|Зелёный|Жёлтый|Розовый'],
-  ['15pl', '15 Plus', '128 256 512', 'Чёрный|Голубой|Зелёный|Жёлтый|Розовый'],
-  ['15p', '15 Pro', '128 256 512 1t', 'Чёрный|Белый|Синий|Титан'],
-  ['15pm', '15 Pro Max', '256 512 1t', 'Чёрный|Белый|Синий|Титан'],
-  ['16', '16', '128 256 512', 'Чёрный|Белый|Розовый|Зелёный|Синий'],
-  ['16pl', '16 Plus', '128 256 512', 'Чёрный|Белый|Розовый|Зелёный|Синий'],
-  ['16p', '16 Pro', '128 256 512 1t', 'Чёрный|Белый|Титан|Десерт'],
-  ['16pm', '16 Pro Max', '256 512 1t', 'Чёрный|Белый|Титан|Десерт'],
-  ['16e', '16e', '128 256 512', 'Чёрный|Белый'],
-  ['17', '17', '256 512', 'Чёрный|Белый|Голубой|Зелёный|Фиолетовый'],
-  ['air', 'Air', '256 512 1t', 'Чёрный|Белый|Золотой|Голубой'],
-  ['17p', '17 Pro', '256 512 1t', 'Белый|Оранжевый|Синий'],
-  ['17pm', '17 Pro Max', '256 512 1t 2t', 'Белый|Оранжевый|Синий'],
-  ['17e', '17e', '256 512', 'Чёрный|Белый|Розовый']
-];
-
-const colorCodes = new Map([
-  ['Белый', 'w'], ['Чёрный', 'b'], ['Синий', 'b'], ['Голубой', 'gol'],
-  ['Жёлтый', 'y'], ['Коралловый', 'k'], ['Красный', 'r'], ['Зелёный', 'gr'],
-  ['Золотой', 'g'], ['Фиолетовый', 'f'], ['Розовый', 'p'], ['Титан', 't'],
-  ['Десерт', 'g'], ['Оранжевый', 'o']
-]);
-const variantsByCode = new Map();
-for (const [modelCode, name, capacities, palette] of models) {
-  for (const capacity of capacities.split(' ')) {
-    const size = capacity === '1t' ? '1024 Gb' : capacity === '2t' ? '2 Tb' : capacity + ' Gb';
-    for (const color of palette.split('|')) {
-      const colorCode = modelCode === '15' && capacity === '128' && color === 'Голубой' ? 'b' : colorCodes.get(color);
-      const code = modelCode + capacity + colorCode;
-      const variants = variantsByCode.get(code) || [];
-      variants.push('iPhone ' + name + ' ' + size + ' ' + color);
-      variantsByCode.set(code, variants);
-    }
-  }
-}
 const rows = [];
 const date = byId('date');
 const supplier = byId('supplier');
@@ -138,22 +68,6 @@ let activeOption = -1;
 let catalogOptions = [];
 date.value = new Intl.DateTimeFormat('sv-SE').format(new Date());
 
-function categoryOf(title) {
-  const capacity = /\s+\d+\s*(?:GB|TB|ГБ|ТБ|G|T)(?=\s|$)/iu.exec(title);
-  if (capacity) return title.slice(0, capacity.index);
-  return /^iPhone\s+(?:\d+[ecrs]?|SE|Air|X[RS]?)(?:\s+(?:Pro Max|Pro|Plus|mini|Max|Air))?(?=\s|$)/i.exec(title)?.[0] || '';
-}
-const russianKeys = 'йцукенгшщзхъфывапролджэячсмитьбюё';
-const latinKeys = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`";
-function normalizeCode(value) {
-  return value.trim().toLowerCase().replace(/[а-яё]/gu, letter => latinKeys[russianKeys.indexOf(letter)]);
-}
-function normalizeCapacityTitle(title) {
-  return title.replace(/\s+1\s*(?:tb|тб|t)(?=\s|$)/iu, ' 1024 Gb');
-}
-function normalizeTitle(value) {
-  return normalizeCapacityTitle(value).trim().toLowerCase().replaceAll('ё', 'е').replace(/\s+/g, ' ');
-}
 function findModels(value) {
   const codeQuery = normalizeCode(value);
   const nameQuery = normalizeTitle(value);
@@ -227,14 +141,7 @@ function updateModel(show = true) {
   else closeSuggestions();
 }
 function updateCodes() {
-  catalogOptions = [];
-  for (const [code, variants] of variantsByCode) {
-    if (!codes.has(code)) for (const title of variants) catalogOptions.push({code, title, name:normalizeTitle(title)});
-  }
-  for (const [code, savedTitle] of codes) {
-    const title = normalizeCapacityTitle(savedTitle);
-    catalogOptions.push({code, title, name:normalizeTitle(title)});
-  }
+  catalogOptions = getCatalogOptions();
   updateModel(false);
 }
 function highlightOption(index) {
@@ -513,24 +420,6 @@ byId('add').onsubmit = event => {
   render();
   imei.focus();
 };
-byId('catalog').onsubmit = event => {
-  event.preventDefault();
-  const code = normalizeCode(byId('alias').value);
-  const title = normalizeCapacityTitle(byId('title').value.trim());
-  const status = byId('catalogStatus');
-  if (!/^[a-z0-9_-]+$/.test(code) || !categoryOf(title)) {
-    status.textContent = 'Введите код без пробелов и название с моделью iPhone или объёмом памяти.';
-    return;
-  }
-  codes.set(code, title);
-  updateCodes();
-  event.target.reset();
-  try {
-    localStorage.setItem(catalogKey, JSON.stringify(Object.fromEntries(codes)));
-    status.textContent = 'Код «' + code + '» сохранён.';
-  } catch { status.textContent = 'Код доступен до закрытия страницы.'; }
-};
-
 const colorEmoji = new Map([
   ['Чёрный','🖤'], ['Золотой','💛'], ['Зелёный','💚'], ['Белый','🤍'],
   ['Синий','💙'], ['Красный','❤️'], ['Розовый','🩷'], ['Фиолетовый','💜'],
@@ -780,5 +669,19 @@ byId('export').onclick = () => {
 };
 updateCodes();
 render();
+function refreshSavedCodes() {
+  let stored;
+  try {
+    stored = JSON.parse(localStorage.getItem(catalogKey)) || {};
+  } catch { return; }
+  codes.clear();
+  codes.set('14p2561', 'iPhone 14 Pro 256 Gb Фиолетовый');
+  for (const [code, title] of Object.entries(stored)) codes.set(code, title);
+  updateCodes();
+}
+window.addEventListener('pageshow', refreshSavedCodes);
+window.addEventListener('storage', event => {
+  if (event.key === catalogKey || event.key === null) refreshSavedCodes();
+});
 </script>
 </html>
