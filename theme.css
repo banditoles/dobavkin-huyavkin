@@ -100,3 +100,56 @@ body {
 @supports not (backdrop-filter: blur(1px)) {
   .card.liquidGlass { background: #17141d; }
 }
+
+
+/* Glass controls use the bundled Liquid Glass SVG filter. */
+button {
+  position: relative;
+  isolation: isolate;
+  border: 1px solid #e4d3ff38;
+  border-radius: 12px;
+  background: linear-gradient(145deg, #a46af566, #6334c455);
+  box-shadow: inset 0 1px 0 #fff3, inset 0 -1px 0 #0003, 0 5px 16px #0003;
+  color: #fbf8ff;
+  transition: background .18s, border-color .18s, box-shadow .18s, transform .18s;
+}
+button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  z-index: -1;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+  backdrop-filter: blur(8px) saturate(150%);
+  filter: url(#liquidGlassFilter2);
+  opacity: .5;
+}
+button:hover:not(:disabled) {
+  filter: none;
+  border-color: #dfc8ff80;
+  background: linear-gradient(145deg, #b988ff80, #7e48d877);
+  box-shadow: inset 0 1px 0 #fff5, 0 7px 22px #0004;
+}
+button:active:not(:disabled) { transform: translateY(1px); }
+button.secondary, .variant-buttons button {
+  background: linear-gradient(145deg, #bea2e51f, #60417d30);
+  color: #eee4fc;
+  border: 1px solid #d8c4ef30;
+}
+.variant-buttons button[aria-pressed="true"] {
+  background: linear-gradient(140deg, #b176f6a6, #7845d8b3);
+  border-color: #d9b5ffb3;
+  color: #fff;
+  box-shadow: inset 0 1px 0 #fff5, 0 0 18px #a270ff26;
+}
+button.remove { background: #ebaccb0a; border-color: #ebaccb20; border-radius: 8px; box-shadow: none; }
+.variant-group { margin-top: 14px; }
+.variant-label { margin-bottom: 8px; font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+.variant-buttons { max-height: 170px; gap: 7px; padding: 2px 3px 5px; }
+.variant-buttons button { padding: 8px 11px; border-radius: 10px; }
+#variantControls { margin-bottom: 22px; padding: 0 0 18px; border-bottom: 1px solid var(--line); }
+#variantControls > .variant-group:first-child { margin-top: 8px; }
+.suggestions button { box-shadow: none; border-color: transparent; }
+.suggestions button::before { display: none; }
+@media (prefers-reduced-motion: reduce) { button { transition: none; } }
