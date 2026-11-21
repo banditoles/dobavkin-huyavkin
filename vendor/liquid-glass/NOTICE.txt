@@ -1,0 +1,6 @@
+Liquid Glass CSS by Mael-667
+https://github.com/Mael-667/Liquid-Glass-CSS
+Upstream revision: 9a7daef232d4c4eee63fb5bf890320832d27dcdb
+License: GNU GPL version 3, included in LICENSE.
+liquidGlass.css and filter.svg are unmodified upstream source files.
+Project-specific integration is in theme.css and the HTML pages.

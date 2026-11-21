@@ -1,0 +1,102 @@
+:root {
+  color-scheme: dark;
+  font: 15px/1.5 Inter, system-ui, sans-serif;
+  color: #f1edf7;
+  background: #0e0c12;
+  --green: #6634c4;
+  --line: #302938;
+  --muted: #aca2b8;
+  --highlight: #c8a9ff;
+}
+header {
+  background: linear-gradient(110deg, #21152f, #131017 70%);
+  border-bottom: 1px solid var(--line);
+  color: #f1edf7;
+  padding-block: 20px;
+  font-size: 18px;
+  letter-spacing: -.4px;
+}
+main { padding-top: 32px; }
+h1 { font-size: clamp(28px, 5vw, 36px); letter-spacing: -.04em; }
+h2 { font-size: 18px; }
+p, .hint, th, .empty, .suggestions small { color: var(--muted); }
+.intro { margin-bottom: 25px; }
+.grid { grid-template-columns: minmax(0, .8fr) minmax(0, 1.6fr); }
+.card { background: #17141d; border-color: var(--line); border-radius: 21px; }
+label { color: #d0c8d9; font-weight: 500; }
+input, textarea {
+  background: #100e15;
+  color: #f1edf7;
+  border-color: #44384f;
+}
+input::placeholder, textarea::placeholder { color: #95899f; opacity: 1; }
+button { background: var(--green); color: #fff; font-weight: 600; }
+button:hover:not(:disabled) { filter: brightness(1.13); }
+button.secondary { background: #27212f; color: #f1edf7; border: 1px solid #44384f; }
+button.remove { color: #e9a3b0; }
+th { background: #201a29; }
+.date-band th { background: #292033; color: #d9c5f5; }
+.supplier-start td { border-top-color: #655275; }
+.imei-count, .supplier-count { background: #2c2041; color: #d9baff; }
+.scan-model, summary { color: var(--highlight); }
+.scan-cell { background: #201a29; }
+.status { color: #ffb4bd; }
+.suggestions { background: #211a2a; border-color: #44384f; box-shadow: 0 12px 30px #0006; }
+.suggestions button { color: #f1edf7; }
+.suggestions button:hover, .suggestions [aria-selected="true"] button { background: #352446; }
+.cell-edit:hover { border-color: #655275; }
+.cell-edit:focus { background: #211a2a; border-color: var(--highlight); }
+input:focus-visible, textarea:focus-visible, button:focus-visible,
+summary:focus-visible, a:focus-visible { outline: 2px solid var(--highlight); outline-offset: 3px; }
+.page-footer { margin-top: 22px; border-top: 1px solid var(--line); padding-top: 18px; text-align: right; }
+a { color: var(--highlight); text-underline-offset: 4px; }
+.back-link { display: inline-block; margin-bottom: 22px; }
+.catalog-table { white-space: normal; }
+.catalog-table td { vertical-align: top; }
+.catalog-table .code-input { min-width: 130px; font-family: ui-monospace, monospace; }
+.catalog-table .title-input { min-width: 240px; }
+.catalog-table td:last-child { min-width: 200px; }
+.catalog-table .actions { flex-wrap: nowrap; }
+.catalog-add { display: grid; grid-template-columns: 1fr 2fr auto; gap: 12px; align-items: end; margin-top: 24px; }
+.catalog-add .field { margin: 0; }
+.catalog-help { margin-top: 24px; }
+@media (max-width: 680px) {
+  .grid, .catalog-add { grid-template-columns: 1fr; }
+  header { font-size: 17px; }
+  .card { padding: 18px; }
+}
+
+
+/* Liquid Glass CSS integration, upstream files in vendor/liquid-glass. */
+body {
+  background:
+    radial-gradient(ellipse at 10% 12%, #59358d45, transparent 45%),
+    radial-gradient(ellipse at 90% 42%, #293f7c38, transparent 45%),
+    #0e0c12;
+  min-height: 100vh;
+}
+.card.liquidGlass {
+  width: auto;
+  font-size: inherit;
+  color: #f1edf7;
+  text-shadow: none;
+  background: #17141dcc;
+  isolation: isolate;
+}
+.card.liquidGlass::before, .card.liquidGlass::after { border-radius: inherit; }
+.card.liquidGlass::before {
+  -webkit-backdrop-filter: blur(14px) saturate(125%);
+  backdrop-filter: blur(14px) saturate(125%);
+  opacity: .65;
+}
+.card.liquidGlass::after {
+  background: linear-gradient(135deg, #d8b7ff0a, #718cff04);
+  box-shadow: inset 1px 1px 0 #ecdfff2b, inset -1px -1px 0 #fff1, 0 14px 40px #0003;
+}
+.grid > .card:focus-within { z-index: 3; }
+.variant-buttons button { background: #292033; color: #e3d5f5; border: 1px solid #44384f; }
+.variant-buttons button[aria-pressed="true"] { background: #6634c4; color: white; border-color: #b288f2; }
+.variant-label { color: var(--muted); }
+@supports not (backdrop-filter: blur(1px)) {
+  .card.liquidGlass { background: #17141d; }
+}

@@ -11,16 +11,32 @@
 .scan-area{text-align:center}.scan-area .imei-head{justify-content:center}.scan-area .scan-model{margin-inline:auto}.scan-grid{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}.scan-grid:empty{display:none}.scan-grid:not(:empty){margin-bottom:8px}.scan-cell{display:flex;align-items:center;gap:2px;background:#f1f5ef;border:1px solid var(--line);border-radius:9px;padding:2px}.scan-cell input,#imei{width:19ch;text-align:center;font:14px ui-monospace,monospace}.scan-cell input{background:transparent;border-color:transparent;padding:6px 3px}.scan-cell .remove{padding:2px 6px}.scan-area .imei-flag{margin-inline:auto}.scan-area #imei{width:min(100%,24ch)}
 .variant-group{margin-top:12px}.variant-label{font-size:12px;color:#516458;margin-bottom:6px}.variant-buttons{display:flex;flex-wrap:wrap;gap:5px;max-height:135px;overflow:auto}.variant-buttons button{padding:6px 9px;font-size:13px;background:#eaf1e7;color:#254932}.variant-buttons button[aria-pressed="true"]{background:#235b3e;color:white}
 </style>
-<header>Приёмка товара</header>
+<link rel="stylesheet" href="vendor/liquid-glass/liquidGlass.css">
+<link rel="stylesheet" href="theme.css">
+<svg height="0" width="0" display="block" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <filter id="liquidGlassFilter" color-interpolation-filters="sRGB" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+                <feTurbulence type="fractalNoise" baseFrequency="0.009 0.011" numOctaves="2" seed="8" stitchTiles="stitch" x="0%" y="0%" width="100%" height="100%" result="turbulence"/>
+                <feDisplacementMap in="SourceGraphic" in2="turbulence" scale="55" xChannelSelector="R" yChannelSelector="B" x="0%" y="0%" width="100%" height="100%" result="displacementMap1"/>
+        </filter>
+        <filter id="liquidGlassFilter2" color-interpolation-filters="linearRGB" filterUnits="objectBoundingBox" primitiveUnits="userSpaceOnUse">
+            <feBlend mode="screen" x="0%" y="0%" width="100%" height="100%" in="SourceGraphic" in2="SourceGraphic" result="blend"/>
+            <feTurbulence type="fractalNoise" baseFrequency="0.009 0.008" numOctaves="2" seed="8" stitchTiles="stitch" x="0%" y="0%" width="100%" height="100%" result="turbulence"/>
+            <feDisplacementMap in="blend" in2="turbulence" scale="55" xChannelSelector="R" yChannelSelector="B" x="0%" y="0%" width="100%" height="100%" result="displacementMap1"/>
+        </filter>
+    </defs>
+</svg>
+
+<header>Добавочкин хуявочкин</header>
 <main>
 <div class="intro"><h1>Новая добавка</h1><p id="saveStatus" class="hint" role="status"></p><p>Введите поставщика, модель и IMEI, чтобы собрать файл Excel.</p></div>
 <div class="grid">
-<section class="card">
+<section class="card liquidGlass">
 <h2>Поставка</h2>
 <div class="field"><label for="supplier">Поставщик</label><input id="supplier" placeholder="Например, Антон" maxlength="150" list="suppliers"><datalist id="suppliers"></datalist><p class="hint">Укажите поставщика перед добавлением его товаров.</p></div>
 <label for="date">Дата</label><input type="date" id="date" required>
 </section>
-<section class="card">
+<section class="card liquidGlass">
 <h2>Добавить товар</h2>
 <form id="add">
 <div class="field"><label for="model">Код или полное название модели</label>
@@ -33,13 +49,13 @@
 </form>
 </section>
 </div>
-<section class="card">
+<section class="card liquidGlass">
 <div class="bar"><div><h2>Товары</h2><p id="count" class="hint">0 шт.</p></div><div class="actions"><button class="secondary" id="stockBuild" disabled>Складская добавка</button><button id="export" disabled>Скачать Excel</button></div></div>
 <div class="scroll"><table><thead><tr><th>Название модели</th><th>Категория</th><th>IMEI</th><th>Кол-во</th><th>Поставщик</th><th aria-label="Действия"></th></tr></thead><tbody id="rows"></tbody></table></div>
 <p class="status" id="tableStatus" role="status"></p>
 <p class="status" id="exportStatus" role="status"></p>
 </section>
-<section class="card stock-card" id="stockCard">
+<section class="card stock-card liquidGlass" id="stockCard">
 <h2>Складская добавка</h2>
 <label for="stockText">Текст добавки</label>
 <textarea id="stockText" placeholder="11 Pro 256 - 2🖤 2💛 2💚 2🤍"></textarea>
@@ -47,81 +63,11 @@
 <p class="hint" id="stockStatus" role="status"></p>
 <ul class="stock-plan" id="stockPlan"></ul>
 </section>
-<details class="card">
-<summary>Добавить или изменить короткий код</summary>
-<p class="hint">Код можно набрать в любой раскладке. Цвета: w — белый, b — синий или чёрный, gol — голубой, g — золотой или десерт, y — жёлтый, gr — зелёный, k — коралловый, r — красный, o — оранжевый, p — розовый, t — титан, f — фиолетовый. Для iPhone 15 128 Gb Голубой используйте 15128b. Суффиксы модели: p — Pro, pm — Pro Max, pl — Plus, m — mini. Для 1024 Gb и 2 Tb используйте 1t и 2t.</p>
-<form id="catalog">
-<div class="field"><label for="alias">Короткий код</label><input id="alias" placeholder="Например, 11r" maxlength="40" required></div>
-<div class="field"><label for="title">Полное название модели</label><input id="title" placeholder="iPhone 11 256 Gb Красный" maxlength="200" required></div>
-<button class="secondary" type="submit">Сохранить код</button>
-<p class="hint" id="catalogStatus" role="status">Коды сохраняются в этом браузере.</p>
-</form>
-</details>
-</main>
-<script>
-const byId = id => document.getElementById(id);
-const catalogKey = 'iphone-intake-codes-v1';
-let savedCodes = {};
-try { savedCodes = JSON.parse(localStorage.getItem(catalogKey)) || {}; } catch {}
-const codes = new Map(Object.entries({'14p2561':'iPhone 14 Pro 256 Gb Фиолетовый', ...savedCodes}));
-// Model code, category suffix, available capacities, and Russian color names.
-const models = [
-  ['x', 'X', '64 256', 'Белый|Чёрный'],
-  ['xr', 'XR', '64 128 256', 'Чёрный|Белый|Синий|Жёлтый|Коралловый|Красный'],
-  ['xs', 'XS', '64 256 512', 'Белый|Чёрный|Золотой'],
-  ['xsm', 'XS Max', '64 256 512', 'Белый|Чёрный|Золотой'],
-  ['11', '11', '64 128 256', 'Чёрный|Белый|Зелёный|Жёлтый|Фиолетовый|Красный'],
-  ['11p', '11 Pro', '64 256 512', 'Белый|Чёрный|Золотой|Зелёный'],
-  ['11pm', '11 Pro Max', '64 256 512', 'Белый|Чёрный|Золотой|Зелёный'],
-  ['se2', 'SE (2-го поколения)', '64 128 256', 'Чёрный|Белый|Красный'],
-  ['12m', '12 mini', '64 128 256', 'Чёрный|Белый|Красный|Зелёный|Синий|Фиолетовый'],
-  ['12', '12', '64 128 256', 'Чёрный|Белый|Красный|Зелёный|Синий|Фиолетовый'],
-  ['12p', '12 Pro', '128 256 512', 'Белый|Чёрный|Золотой|Синий'],
-  ['12pm', '12 Pro Max', '128 256 512', 'Белый|Чёрный|Золотой|Синий'],
-  ['13m', '13 mini', '128 256 512', 'Красный|Белый|Чёрный|Синий|Розовый|Зелёный'],
-  ['13', '13', '128 256 512', 'Красный|Белый|Чёрный|Синий|Розовый|Зелёный'],
-  ['13p', '13 Pro', '128 256 512 1t', 'Чёрный|Золотой|Белый|Голубой|Зелёный'],
-  ['13pm', '13 Pro Max', '128 256 512 1t', 'Чёрный|Золотой|Белый|Голубой|Зелёный'],
-  ['se3', 'SE (3-го поколения)', '64 128 256', 'Красный|Белый|Чёрный'],
-  ['14', '14', '128 256 512', 'Чёрный|Белый|Красный|Синий|Фиолетовый|Жёлтый'],
-  ['14pl', '14 Plus', '128 256 512', 'Чёрный|Белый|Красный|Синий|Фиолетовый|Жёлтый'],
-  ['14p', '14 Pro', '128 256 512 1t', 'Белый|Золотой|Чёрный|Фиолетовый'],
-  ['14pm', '14 Pro Max', '128 256 512 1t', 'Белый|Золотой|Чёрный|Фиолетовый'],
-  ['15', '15', '128 256 512', 'Чёрный|Голубой|Зелёный|Жёлтый|Розовый'],
-  ['15pl', '15 Plus', '128 256 512', 'Чёрный|Голубой|Зелёный|Жёлтый|Розовый'],
-  ['15p', '15 Pro', '128 256 512 1t', 'Чёрный|Белый|Синий|Титан'],
-  ['15pm', '15 Pro Max', '256 512 1t', 'Чёрный|Белый|Синий|Титан'],
-  ['16', '16', '128 256 512', 'Чёрный|Белый|Розовый|Зелёный|Синий'],
-  ['16pl', '16 Plus', '128 256 512', 'Чёрный|Белый|Розовый|Зелёный|Синий'],
-  ['16p', '16 Pro', '128 256 512 1t', 'Чёрный|Белый|Титан|Десерт'],
-  ['16pm', '16 Pro Max', '256 512 1t', 'Чёрный|Белый|Титан|Десерт'],
-  ['16e', '16e', '128 256 512', 'Чёрный|Белый'],
-  ['17', '17', '256 512', 'Чёрный|Белый|Голубой|Зелёный|Фиолетовый'],
-  ['air', 'Air', '256 512 1t', 'Чёрный|Белый|Золотой|Голубой'],
-  ['17p', '17 Pro', '256 512 1t', 'Белый|Оранжевый|Синий'],
-  ['17pm', '17 Pro Max', '256 512 1t 2t', 'Белый|Оранжевый|Синий'],
-  ['17e', '17e', '256 512', 'Чёрный|Белый|Розовый']
-];
 
-const colorCodes = new Map([
-  ['Белый', 'w'], ['Чёрный', 'b'], ['Синий', 'b'], ['Голубой', 'gol'],
-  ['Жёлтый', 'y'], ['Коралловый', 'k'], ['Красный', 'r'], ['Зелёный', 'gr'],
-  ['Золотой', 'g'], ['Фиолетовый', 'f'], ['Розовый', 'p'], ['Титан', 't'],
-  ['Десерт', 'g'], ['Оранжевый', 'o']
-]);
-const variantsByCode = new Map();
-for (const [modelCode, name, capacities, palette] of models) {
-  for (const capacity of capacities.split(' ')) {
-    const size = capacity === '1t' ? '1024 Gb' : capacity === '2t' ? '2 Tb' : capacity + ' Gb';
-    for (const color of palette.split('|')) {
-      const colorCode = modelCode === '15' && capacity === '128' && color === 'Голубой' ? 'b' : colorCodes.get(color);
-      const code = modelCode + capacity + colorCode;
-      const variants = variantsByCode.get(code) || [];
-      variants.push('iPhone ' + name + ' ' + size + ' ' + color);
-      variantsByCode.set(code, variants);
-    }
-  }
-}
+<footer class="page-footer"><a href="codes.html">Короткие коды моделей</a></footer>
+</main>
+<script src="catalog-data.js"></script>
+<script>
 const rows = [];
 const date = byId('date');
 const supplier = byId('supplier');
@@ -140,22 +86,6 @@ let activeOption = -1;
 let catalogOptions = [];
 date.value = new Intl.DateTimeFormat('sv-SE').format(new Date());
 
-function categoryOf(title) {
-  const capacity = /\s+\d+\s*(?:GB|TB|ГБ|ТБ|G|T)(?=\s|$)/iu.exec(title);
-  if (capacity) return title.slice(0, capacity.index);
-  return /^iPhone\s+(?:\d+[ecrs]?|SE|Air|X[RS]?)(?:\s+(?:Pro Max|Pro|Plus|mini|Max|Air))?(?=\s|$)/i.exec(title)?.[0] || '';
-}
-const russianKeys = 'йцукенгшщзхъфывапролджэячсмитьбюё';
-const latinKeys = "qwertyuiop[]asdfghjkl;'zxcvbnm,.`";
-function normalizeCode(value) {
-  return value.trim().toLowerCase().replace(/[а-яё]/gu, letter => latinKeys[russianKeys.indexOf(letter)]);
-}
-function normalizeCapacityTitle(title) {
-  return title.replace(/\s+1\s*(?:tb|тб|t)(?=\s|$)/iu, ' 1024 Gb');
-}
-function normalizeTitle(value) {
-  return normalizeCapacityTitle(value).trim().toLowerCase().replaceAll('ё', 'е').replace(/\s+/g, ' ');
-}
 function findModels(value) {
   const codeQuery = normalizeCode(value);
   const nameQuery = normalizeTitle(value);
@@ -312,14 +242,7 @@ function updateModel(show = true) {
   else closeSuggestions();
 }
 function updateCodes() {
-  catalogOptions = [];
-  for (const [code, variants] of variantsByCode) {
-    if (!codes.has(code)) for (const title of variants) catalogOptions.push({code, title, name:normalizeTitle(title)});
-  }
-  for (const [code, savedTitle] of codes) {
-    const title = normalizeCapacityTitle(savedTitle);
-    catalogOptions.push({code, title, name:normalizeTitle(title)});
-  }
+  catalogOptions = getCatalogOptions();
   updateModel(false);
 }
 function highlightOption(index) {
@@ -600,24 +523,6 @@ byId('add').onsubmit = event => {
   render();
   imei.focus();
 };
-byId('catalog').onsubmit = event => {
-  event.preventDefault();
-  const code = normalizeCode(byId('alias').value);
-  const title = normalizeCapacityTitle(byId('title').value.trim());
-  const status = byId('catalogStatus');
-  if (!/^[a-z0-9_-]+$/.test(code) || !categoryOf(title)) {
-    status.textContent = 'Введите код без пробелов и название с моделью iPhone или объёмом памяти.';
-    return;
-  }
-  codes.set(code, title);
-  updateCodes();
-  event.target.reset();
-  try {
-    localStorage.setItem(catalogKey, JSON.stringify(Object.fromEntries(codes)));
-    status.textContent = 'Код «' + code + '» сохранён.';
-  } catch { status.textContent = 'Код доступен до закрытия страницы.'; }
-};
-
 const colorEmoji = new Map([
   ['Чёрный','🖤'], ['Золотой','💛'], ['Зелёный','💚'], ['Белый','🤍'],
   ['Синий','💙'], ['Красный','❤️'], ['Розовый','🩷'], ['Фиолетовый','💜'],
@@ -873,5 +778,18 @@ restoreDraft();
 restoringDraft = false;
 updateCodes();
 render();
+function refreshSavedCodes() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(catalogKey)) || {};
+    codes.clear();
+    codes.set('14p2561','iPhone 14 Pro 256 Gb Фиолетовый');
+    for (const [code,title] of Object.entries(saved)) codes.set(code,title);
+    updateCodes();
+  } catch {}
+}
+window.addEventListener('pageshow',refreshSavedCodes);
+window.addEventListener('storage', event => {
+  if (event.key === catalogKey || event.key === null) refreshSavedCodes();
+});
 </script>
 </html>
