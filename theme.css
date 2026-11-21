@@ -153,3 +153,10 @@ button.remove { background: #ebaccb0a; border-color: #ebaccb20; border-radius: 8
 .suggestions button { box-shadow: none; border-color: transparent; }
 .suggestions button::before { display: none; }
 @media (prefers-reduced-motion: reduce) { button { transition: none; } }
+
+.variant-line { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; }
+.variant-line > span { font-weight: 600; color: var(--muted); }
+.variant-line button { padding: 7px 11px; font-size: 14px; }
+.variant-line button[aria-expanded="true"] { border-color: #d9b5ffb3; background: #7845d866; }
+.variant-options { margin-top: 10px; max-height: 210px; }
+.variant-options[hidden], #variantControls[hidden] { display: none; }

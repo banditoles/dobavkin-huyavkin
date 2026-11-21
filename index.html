@@ -181,9 +181,16 @@ function restoreDraft() {
     byId('saveStatus').textContent = 'Не удалось восстановить сохранённую добавку.';
   }
 }
+let openVariant = '';
 function renderVariantControls() {
   const title = resolveModel();
   const parts = productParts(title);
+  if (!parts) {
+    byId('variantControls').replaceChildren();
+    byId('variantControls').hidden = true;
+    return;
+  }
+  byId('variantControls').hidden = false;
   const match = parts && models.find(([,name]) => 'iPhone ' + name === parts.category);
   const selected = match || [...models].sort((a,b) => b[0].length - a[0].length)
     .find(([code]) => normalizeCode(model.value).startsWith(code)) || models[0];
@@ -196,6 +203,7 @@ function renderVariantControls() {
   function choose(nextModel, nextSize, nextColor) {
     const memory = nextSize === '1t' ? '1024 Gb' : nextSize === '2t' ? '2 Tb' : nextSize + ' Gb';
     model.value = 'iPhone ' + nextModel + ' ' + memory + ' ' + nextColor;
+    openVariant = '';
     updateModel(false);
   }
   const groups = [
@@ -206,27 +214,43 @@ function renderVariantControls() {
     ['Память', sizes.map(value => ({label:value === '1t' ? '1024 Gb' : value === '2t' ? '2 Tb' : value + ' Gb', active:!!parts && value === activeSize, click:() => choose(name,value,color)}))],
     ['Цвет', colors.map(value => ({label:value, active:!!parts && value === parts.rawColor, click:() => choose(name,size,value)}))]
   ];
-  byId('variantControls').replaceChildren(...groups.map(([label, options]) => {
-    const group = document.createElement('div');
-    group.className = 'variant-group';
-    const heading = document.createElement('div');
-    heading.className = 'variant-label';
-    heading.textContent = label;
-    const buttons = document.createElement('div');
-    buttons.className = 'variant-buttons';
-    buttons.setAttribute('role','group');
-    buttons.setAttribute('aria-label',label);
-    for (const option of options) {
+  const line = document.createElement('div');
+  line.className = 'variant-line';
+  const prefix = document.createElement('span');
+  prefix.textContent = 'iPhone';
+  line.append(prefix);
+  const labels = [name, size === '1t' ? '1024 Gb' : size === '2t' ? '2 Tb' : size + ' Gb', color];
+  groups.forEach(([label], index) => {
+    const trigger = document.createElement('button');
+    trigger.type = 'button';
+    trigger.textContent = labels[index];
+    trigger.setAttribute('aria-label', 'Изменить ' + label.toLowerCase());
+    trigger.setAttribute('aria-expanded', String(openVariant === label));
+    trigger.setAttribute('aria-controls', 'variantOptions');
+    trigger.onclick = () => {
+      openVariant = openVariant === label ? '' : label;
+      renderVariantControls();
+    };
+    line.append(trigger);
+  });
+  const choices = document.createElement('div');
+  choices.id = 'variantOptions';
+  choices.className = 'variant-buttons variant-options';
+  choices.hidden = !openVariant;
+  const opened = groups.find(([label]) => label === openVariant);
+  if (opened) {
+    choices.setAttribute('role', 'group');
+    choices.setAttribute('aria-label', opened[0]);
+    for (const option of opened[1]) {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = option.label;
-      button.setAttribute('aria-pressed',String(option.active));
+      button.setAttribute('aria-pressed', String(option.active));
       button.onclick = option.click;
-      buttons.append(button);
+      choices.append(button);
     }
-    group.append(heading,buttons);
-    return group;
-  }));
+  }
+  byId('variantControls').replaceChildren(line, choices);
 }
 function updateModel(show = true) {
   const matches = findModels(model.value);
@@ -451,8 +475,15 @@ imei.addEventListener('keydown', event => {
   acceptScan();
 });
 imeiError.addEventListener('change', () => updateModel(false));
-model.addEventListener('input', () => updateModel());
+model.addEventListener('input', () => { openVariant = ''; updateModel(); });
 model.addEventListener('focus', () => updateModel());
+byId('variantControls').addEventListener('keydown', event => {
+  if (event.key === 'Escape') {
+    openVariant = '';
+    renderVariantControls();
+    model.focus();
+  }
+});
 picker.addEventListener('focusout', event => {
   if (!picker.contains(event.relatedTarget)) closeSuggestions();
 });
