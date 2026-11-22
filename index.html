@@ -29,7 +29,7 @@
 
 <header>Добавочкин хуявочкин</header>
 <main>
-<div class="intro"><h1>Новая добавка</h1><p id="saveStatus" class="hint" role="status"></p><p>Введите поставщика, модель и IMEI, чтобы собрать файл Excel.</p></div>
+<p id="saveStatus" class="status" role="status"></p>
 <div class="grid">
 <section class="card liquidGlass">
 <h2>Поставка</h2>
@@ -50,7 +50,7 @@
 </section>
 </div>
 <section class="card liquidGlass">
-<div class="bar"><div><h2>Товары</h2><p id="count" class="hint">0 шт.</p></div><div class="actions"><button class="secondary" id="stockBuild" disabled>Складская добавка</button><button id="export" disabled>Скачать Excel</button></div></div>
+<div class="bar"><div><h2>Товары</h2><p id="count" class="hint">0 шт.</p></div><div class="actions"><button class="secondary" id="stockBuild" disabled>Складская добавка</button><button id="export" disabled>Скачать Excel</button><button class="secondary" id="finishIntake" disabled>Завершить добавку</button></div></div>
 <div class="scroll"><table><thead><tr><th>Название модели</th><th>Категория</th><th>IMEI</th><th>Кол-во</th><th>Поставщик</th><th aria-label="Действия"></th></tr></thead><tbody id="rows"></tbody></table></div>
 <p class="status" id="tableStatus" role="status"></p>
 <p class="status" id="exportStatus" role="status"></p>
@@ -66,6 +66,12 @@
 
 <footer class="page-footer"><a href="codes.html">Короткие коды моделей</a></footer>
 </main>
+<dialog id="finishDialog" aria-labelledby="finishTitle">
+<h2 id="finishTitle">Завершить добавку?</h2>
+<p>Скачивание Excel запущено. Убедитесь, что файл сохранён, прежде чем очищать добавку.</p>
+<p class="hint">Будут удалены все товары за все даты, текущая партия IMEI и сохранённый черновик.</p>
+<div class="actions"><button id="keepIntake" type="button" autofocus>Оставить товары</button><button class="secondary" id="clearIntake" type="button">Файл сохранён — очистить</button></div>
+</dialog>
 <script src="catalog-data.js"></script>
 <script>
 const rows = [];
@@ -157,7 +163,7 @@ function saveDraft() {
       scans:scanInputs.map(input => input.value), pending:imei.value,
       error:imeiError.checked, stock:stockText.value, importedStock
     }));
-    byId('saveStatus').textContent = 'Сохранено в этом браузере';
+    byId('saveStatus').textContent = '';
   } catch {
     byId('saveStatus').textContent = 'Не удалось сохранить. Скачайте Excel перед закрытием страницы.';
   }
@@ -454,6 +460,7 @@ function render() {
   }
   byId('count').textContent = rows.length + ' шт.';
   byId('export').disabled = !rows.length;
+  byId('finishIntake').disabled = !rows.length;
   byId('stockBuild').disabled = !rows.length;
   updateImeiCount();
   renderStockPlan();
@@ -789,10 +796,10 @@ function workbook(entries) {
     'xl/worksheets/sheet1.xml': '<worksheet xmlns="'+sheetNs+'"><cols><col min="1" max="1" width="46" customWidth="1"/><col min="2" max="2" width="24" customWidth="1"/><col min="3" max="3" width="19" customWidth="1" style="1"/><col min="4" max="4" width="8" customWidth="1"/><col min="5" max="5" width="24" customWidth="1"/><col min="6" max="6" width="8" customWidth="1"/></cols><sheetData>'+data.join('')+'</sheetData></worksheet>'
   });
 }
-byId('export').onclick = () => {
+function downloadIntake() {
   const status = byId('exportStatus');
   const days = groupByDate(rows).map(([day]) => day);
-  if (!days.length) return;
+  if (!days.length) return false;
   const url = URL.createObjectURL(workbook(rows));
   const link = document.createElement('a');
   link.href = url;
@@ -802,6 +809,34 @@ byId('export').onclick = () => {
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30000);
   status.textContent = '';
+  return true;
+}
+byId('export').onclick = downloadIntake;
+byId('finishIntake').onclick = () => {
+  try {
+    if (downloadIntake()) byId('finishDialog').showModal();
+  } catch {
+    byId('exportStatus').textContent = 'Не удалось подготовить Excel. Добавка сохранена, попробуйте ещё раз.';
+  }
+};
+byId('keepIntake').onclick = () => byId('finishDialog').close();
+byId('clearIntake').onclick = () => {
+  rows.length = 0;
+  scanInputs.length = 0;
+  scanGrid.replaceChildren();
+  importedStock = [];
+  supplier.value = '';
+  model.value = '';
+  imei.value = '';
+  stockText.value = '';
+  imeiError.checked = false;
+  date.value = new Intl.DateTimeFormat('sv-SE').format(new Date());
+  openVariant = '';
+  for (const id of ['addStatus','tableStatus','stockStatus','exportStatus']) byId(id).textContent = '';
+  updateModel(false);
+  render();
+  byId('finishDialog').close();
+  supplier.focus();
 };
 for (const element of [supplier,date,stockText]) element.addEventListener('input',saveDraft);
 window.addEventListener('pagehide',saveDraft);
